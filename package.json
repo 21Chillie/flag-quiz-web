@@ -1,0 +1,15 @@
+{
+  "name": "flag-quiz",
+  "version": "1.0.0",
+  "description": "a web based flag quiz",
+  "keywords": [
+    "postgres"
+  ],
+  "license": "ISC",
+  "author": "Chillie",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
