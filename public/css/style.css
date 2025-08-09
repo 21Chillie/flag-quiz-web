@@ -3,3 +3,7 @@
 @plugin "daisyui" {
   themes: false;
 }
+
+button, input[type="submit"] {
+  cursor: pointer;
+}
