@@ -41,12 +41,36 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 let quiz = [];
+pool.query("SELECT * FROM flags", (err, res) => {
+  if (err) {
+    console.error("Error executing query: ", err);
+  } else {
+    console.log("Success fetching data from flags DB");
+    quiz = res.rows;
+  }
+});
+
 let totalCorrect = 0;
 let currentQuestion = {};
 
 async function nextQuestion() {
-  const randomCountry = quiz[Math.floor(Math.random() * quiz.length)];
-  currentQuestion = randomCountry;
+  const correctFlag = quiz[Math.floor(Math.random() * quiz.length)];
+
+  const wrongFlags = quiz
+    .filter((flag) => flag.id !== correctFlag.id)
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 3);
+
+  const options = [...wrongFlags, correctFlag].sort(() => 0.5 - Math.random());
+
+  currentQuestion = {
+    flag: correctFlag.flag,
+    correctAnswer: correctFlag.name,
+    options,
+  };
+
+  console.log(currentQuestion);
+  console.log(`User score is ${totalCorrect}`);
 }
 
 // Routing
@@ -54,16 +78,32 @@ app.get("/", async (req, res) => {
   try {
     totalCorrect = 0;
 
-    const result = await pool.query("SELECT * FROM flags");
-    quiz = result.rows;
-    console.log("Success fetching data from flags DB");
-
     await nextQuestion();
-    console.log(currentQuestion);
 
     res.render("index", { question: currentQuestion, score: totalCorrect, wasCorrect: null });
   } catch (err) {
     console.error("Error fetching flags DB:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/submit", async (req, res) => {
+  try {
+    let userAnswer = req.body.chooseOption;
+    let isCorrect;
+
+    if (userAnswer === currentQuestion.correctAnswer) {
+      totalCorrect++;
+      isCorrect = true;
+    } else {
+      totalCorrect = 0;
+      isCorrect = false;
+    }
+
+    await nextQuestion();
+
+    res.render("index", { question: currentQuestion, score: totalCorrect, wasCorrect: isCorrect });
+  } catch (err) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

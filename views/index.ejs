@@ -27,7 +27,23 @@
       </nav>
     </header>
 
-    <main></main>
+    <main>
+      <section>
+        <h1 class="text-9xl"><%= question.flag %></h1>
+      </section>
+
+      <section>
+        <form action="/submit" method="post">
+          <% question.options.forEach((option) => {%>
+          <button class="p-4 border" type="submit" name="chooseOption" value="<%= option.name %>"><%= option.name %></button>
+          <% }) %>
+        </form>
+
+        <% if (wasCorrect !== null) { %>
+        <p class="<%= wasCorrect ? 'text-green-500' : 'text-red-500' %>"><%= wasCorrect ? '✅ Correct!' : '❌ Wrong!' %></p>
+        <% } %>
+      </section>
+    </main>
 
     <footer></footer>
   </body>
